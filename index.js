@@ -1,56 +1,168 @@
-const input = document.getElementById("userInput");
-const sendBtn = document.getElementById("sendBtn");
-const messages = document.getElementById("messages");
+document.addEventListener('DOMContentLoaded', () => {
+  const chatToggle = document.querySelector('.chatToggle');
+  const chatMenu = document.querySelector('.chatMenu');
 
-// Fonction pour ajouter un message au chat
-function addMessage(sender, text) {
-  const msg = document.createElement("div");
-  msg.classList.add("message", sender);
-  msg.innerText = text;
-  messages.appendChild(msg);
-  messages.scrollTop = messages.scrollHeight; // scroll en bas automatiquement
-}
+  const signInBtn = document.getElementById('signInBtn');
+  const signUpBtn = document.getElementById('signUpBtn');
 
-// Réponse simple automatique
-function getBotResponse(userText) {
-  const lower = userText.toLowerCase();
+  const signInForm = document.getElementById('signInForm');
+  const signUpForm = document.getElementById('signUpForm');
 
-  if (lower.includes("bonjour") || lower.includes("salut")) {
-    return "Salut ! Comment puis-je t'aider ?";
+  const submitSignIn = document.getElementById('submitSignIn');
+  const submitSignUp = document.getElementById('submitSignUp');
 
-  } else if (lower.includes("aide") || lower.includes("problème")) {
-    return "D'accord, quel est ton problème exactement ?";
+  chatToggle.addEventListener('click', () => {
+    chatMenu.classList.toggle('hidden');
+  });
 
-  } else if (lower.includes("merci")) {
-    return "Avec plaisir 😊";
-    
-  } else {
-    return "Je vais transmettre ça à un agent, attends un instant...";
-  }
-}
+  signInBtn.addEventListener('click', () => {
+    signInForm.classList.remove('hidden');
+    signUpForm.classList.add('hidden');
+  });
 
-// Envoi du message utilisateur
-function handleSend() {
-  const text = input.value.trim();
-  if (text === "") return;
+  signUpBtn.addEventListener('click', () => {
+    signUpForm.classList.remove('hidden');
+    signInForm.classList.add('hidden');
+  });
 
-  addMessage("user", text);
+  submitSignIn.addEventListener('click', async () => {
+    const username = document.getElementById('signInId').value.trim();
+    const password = document.getElementById('signInPassword').value;
+    if (!username || !password) return alert("Veuillez remplir tous les champs.");
 
-  const response = getBotResponse(text);
+    try {
+      const res = await fetch('http://localhost:3000/signin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await res.json();
+      alert(data.message);
+      if (res.ok) {
+        document.getElementById('userList').classList.remove('hidden');
+        fetchUsers(username);
+      }
+    } catch (err) {
+      alert("Erreur de connexion au serveur.");
+      console.error(err);
+    }
+  });
 
-  setTimeout(() => {
-    addMessage("bot", response);
-  }, 400);
+  submitSignUp.addEventListener('click', async () => {
+    const username = document.getElementById('signUpId').value.trim();
+    const password = document.getElementById('signUpPassword').value;
+    const confirm = document.getElementById('signUpConfirmPassword').value;
 
-  input.value = "";
-}
+    if (!username || !password || !confirm) return alert("Veuillez remplir tous les champs.");
+    if (password !== confirm) return alert("Les mots de passe ne correspondent pas.");
 
-// Clic sur le bouton "Envoyer"
-sendBtn.addEventListener("click", handleSend);
-
-// Appuie sur Entrée pour envoyer
-input.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    handleSend();
-  }
+    try {
+      const res = await fetch('http://localhost:3000/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await res.json();
+      alert(data.message);
+    } catch (err) {
+      alert("Erreur de connexion au serveur.");
+      console.error(err);
+    }
+  });
 });
+
+async function fetchUsers(currentUsername) {
+  try {
+    const res = await fetch(`http://localhost:3000/users?username=${encodeURIComponent(currentUsername)}`);
+    const data = await res.json();
+    const usersUl = document.getElementById('usersUl');
+    usersUl.innerHTML = '';
+    data.users.forEach(user => {
+      const li = document.createElement('li');
+      li.textContent = user.username;
+      li.style.cursor = 'pointer';
+      li.addEventListener('click', () => {
+        const message = prompt(`Envoyer un message à ${user.username} :`);
+        if (message) sendMessage(currentUsername, user.username, message);
+      });
+      usersUl.appendChild(li);
+    });
+  } catch (err) {
+    console.error("Erreur de récupération des utilisateurs :", err);
+  }
+}
+
+async function sendMessage(from, to, message) {
+  try {
+    const res = await fetch('http://localhost:3000/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from, to, message }),
+    });
+    const data = await res.json();
+    alert(data.message);
+  } catch (err) {
+    alert("Erreur d’envoi du message");
+    console.error(err);
+  }
+}
+
+function afficherUtilisateurs(users, currentUser) {
+  const container = document.createElement("div");
+  container.id = "listeUtilisateurs";
+
+  const titre = document.createElement("h3");
+  titre.textContent = "Utilisateurs connectés";
+  container.appendChild(titre);
+
+  users.forEach(user => {
+    if (user.username !== currentUser) { // évite de s'envoyer un message à soi-même
+      const bouton = document.createElement("button");
+      bouton.textContent = user.username;
+      bouton.addEventListener("click", () => {
+        afficherZoneDeMessage(currentUser, user.username);
+      });
+      container.appendChild(bouton);
+    }
+  });
+
+  document.body.appendChild(container);
+}
+
+function afficherZoneDeMessage(from, to) {
+  // Supprime l'ancienne zone s'il y en avait une
+  const ancienne = document.getElementById("zoneMessage");
+  if (ancienne) ancienne.remove();
+
+  const zone = document.createElement("div");
+  zone.id = "zoneMessage";
+
+  const titre = document.createElement("h4");
+  titre.textContent = `Envoyer un message à ${to}`;
+  zone.appendChild(titre);
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.placeholder = "Votre message";
+  zone.appendChild(input);
+
+  const bouton = document.createElement("button");
+  bouton.textContent = "Envoyer";
+  bouton.addEventListener("click", async () => {
+    const message = input.value.trim();
+    if (!message) return;
+
+    const res = await fetch('http://localhost:3000/send', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ from, to, message })
+    });
+
+    const data = await res.json();
+    alert(data.message);
+    input.value = "";
+  });
+
+  zone.appendChild(bouton);
+  document.body.appendChild(zone);
+}

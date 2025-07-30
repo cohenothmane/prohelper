@@ -1,72 +1,55 @@
-.logo
-{
-    color: aqua;
+.chatToggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 14px 18px;
+  font-size: 20px;
+  border-radius: 50%;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  z-index: 10;
 }
 
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
-    padding: 30px;
+.chatMenu {
+  position: fixed;
+  bottom: 70px;
+  right: 20px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.15);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 9;
 }
 
-h1 {
-    text-align: center;
-    color: #333;
+.chatMenu button {
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  background-color: #f0f0f0;
+  cursor: pointer;
 }
 
-#chatbox {
-    max-width: 750px;
-    margin: 30px auto;
-    background-color: white;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px #ccc;
+.chatMenu button:hover {
+  background-color: #e0e0e0;
 }
 
-#messages {
-    height: 350px;
-    overflow-y: auto;
-    border: 1px solid #ddd;
-    padding: 10px;
-    margin-bottom: 10px;
-    background-color: #fafafa;
+.hidden {
+  display: none;
 }
 
-.message {
-    margin: 5px 0;
+.formBox input {
+  padding: 8px;
+  margin-top: 5px;
+  font-size: 14px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  display: block;
 }
 
-.user {
-    color: blue;
-    text-align: right;
-    display: block;
-}
-
-.bot {
-    color: green;
-    text-align: left;
-    display: block;
-}
-
-input[type="text"] {
-    width: 78%;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #aaa;
-    border-radius: 5px;
-}
-
-button {
-    width: 18%;
-    padding: 10px;
-    font-size: 16px;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #0056b3;
-}

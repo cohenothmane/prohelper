@@ -1,19 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>prohelper</title>
-    <link rel="stylesheet" href="index.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ChatApp</title>
+  <link rel="stylesheet" href="index.css" />
 </head>
 <body>
-    <h1 class="logo">PROHEPLER</h1>
-    <div id="chatbox">
-        <div id="messages"></div>
-        <input type="text" id="userInput" placeholder="Tape un message...">
-        <button id="sendBtn">Envoyer</button>
-    </div>
-      <script src="index.js"></script>
+  <button class="chatToggle">💬</button>
 
+  <div class="chatMenu hidden">
+    <!-- Boutons de navigation -->
+    <button id="signInBtn">Connexion</button>
+    <button id="signUpBtn">Créer un compte</button>
+
+    <!-- Formulaire Connexion -->
+    <div id="signInForm" class="formBox hidden">
+      <input id="signInId" type="text" placeholder="ID" />
+      <input id="signInPassword" type="password" placeholder="Mot de passe" />
+      <button id="submitSignIn">Connexion</button>
+    </div>
+
+    <!-- Formulaire Inscription -->
+    <div id="signUpForm" class="formBox hidden">
+      <input id="signUpId" type="text" placeholder="Nouvel ID" />
+      <input id="signUpPassword" type="password" placeholder="Mot de passe" />
+      <input id="signUpConfirmPassword" type="password" placeholder="Confirmer mot de passe" />
+      <button id="submitSignUp">Créer le compte</button>
+    </div>
+
+    <div id="userList" class="hidden">
+        <h3>Utilisateurs connectés</h3>
+        <ul id="usersUl"></ul>
+    </div>
+
+
+    <!-- Zone après connexion -->
+    <div id="chatSection" class="hidden">
+      <h3>Connecté en tant que <span id="currentUserDisplay"></span></h3>
+      <div id="userList"></div>
+
+      <div id="conversation" class="hidden">
+        <h4>Conversation avec <span id="chatWith"></span></h4>
+        <div id="messages" style="border: 1px solid #ccc; height: 200px; overflow-y: scroll; margin-bottom: 5px;"></div>
+        <input type="text" id="newMessage" placeholder="Écris ton message..." />
+        <button id="sendMessage">Envoyer</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="index.js"></script>
 </body>
 </html>
