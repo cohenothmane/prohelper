@@ -66,3 +66,17 @@
 #backToUsers:hover {
   background-color: #0056b3;
 }
+
+#signOutBtn {
+  margin-top: 8px;
+  padding: 6px 10px;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  background-color: #dc3545;
+  color: white;
+  cursor: pointer;
+}
+#signOutBtn:hover {
+  background-color: #b52a37;
+}

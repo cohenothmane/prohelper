@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const newMessageInput = document.getElementById('newMessage');
   const sendMessageBtn = document.getElementById('sendMessage');
   const backToUsersBtn = document.getElementById('backToUsers');
+  const signOutBtn = document.getElementById('signOutBtn');
 
 backToUsersBtn.addEventListener('click', () => {
   console.log('Retour cliqué'); // pour debug : ouvre la console (F12) pour voir ce message
@@ -184,16 +185,16 @@ backToUsersBtn.addEventListener('click', () => {
   });
 
   // --- Sélection d'un utilisateur dans la liste
-async function onClickUser(username)
-{
+async function onClickUser(username) {
   SELECTED_USER = username;
   chatWith.textContent = SELECTED_USER;
 
   // afficher la conversation
   conversationWrap.classList.remove('hidden');
 
-  // cacher la liste d'utilisateurs
+  // cacher la liste d'utilisateurs et le bouton Déconnexion
   userListWrap.classList.add('hidden');
+  signOutBtn.classList.add('hidden');
 
   // masquer les formulaires de connexion/inscription
   signInForm.classList.add('hidden');
@@ -204,6 +205,17 @@ async function onClickUser(username)
   await refreshMessages();
   startMessagesPolling();
 }
+
+// Quand on revient à la liste des utilisateurs
+backToUsersBtn.addEventListener('click', () => {
+  conversationWrap.classList.add('hidden');  // cacher la conversation
+  SELECTED_USER = null;                      // reset user sélectionné
+  stopMessagesPolling();                     // arrêter le polling des messages
+
+  // réafficher la liste des utilisateurs et le bouton Déconnexion
+  userListWrap.classList.remove('hidden');
+  signOutBtn.classList.remove('hidden');
+});
 
 
 
