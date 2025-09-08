@@ -184,19 +184,27 @@ backToUsersBtn.addEventListener('click', () => {
   });
 
   // --- Sélection d'un utilisateur dans la liste
-  async function onClickUser(username) {
+async function onClickUser(username)
+{
   SELECTED_USER = username;
   chatWith.textContent = SELECTED_USER;
+
+  // afficher la conversation
   conversationWrap.classList.remove('hidden');
 
-  // MASQUE la liste d'utilisateurs pour n'avoir QUE la conversation
+  // cacher la liste d'utilisateurs
   userListWrap.classList.add('hidden');
 
-  // Stop ancien polling messages, relance pour la nouvelle cible
+  // masquer les formulaires de connexion/inscription
+  signInForm.classList.add('hidden');
+  signUpForm.classList.add('hidden');
+
+  // stop ancien polling messages et lancer le nouveau
   stopMessagesPolling();
   await refreshMessages();
   startMessagesPolling();
 }
+
 
 
   // --- Récupérer la liste des utilisateurs connectés (sauf moi)
