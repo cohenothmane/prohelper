@@ -135,15 +135,3 @@ app.get("/messages/:user1/:user2", (req, res) => {
 app.listen(3000, () => {
   console.log("✅ Serveur lancé sur http://localhost:3000");
 });
-
-// 🚪 Déconnexion
-app.post("/signout", (req, res) => {
-  const { username } = req.body;
-
-  db.run("UPDATE users SET is_connected = 0 WHERE username = ?", [username], (err) => {
-    if (err) {
-      return res.status(500).json({ message: "Erreur lors de la déconnexion." });
-    }
-    res.json({ message: "Déconnexion réussie." });
-  });
-});

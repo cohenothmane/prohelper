@@ -1,3 +1,4 @@
+npm install express sqlite3 body-parser cors
 
 const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
@@ -14,11 +15,11 @@ app.use(bodyParser.json());
 db.serialize(() => {
   db.run(`
     CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    is_connected INTEGER DEFAULT 0
-    );
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT UNIQUE,
+      password TEXT,
+      is_connected INTEGER DEFAULT 0
+    )
   `);
 
   db.run(`
@@ -134,16 +135,4 @@ app.get("/messages/:user1/:user2", (req, res) => {
 // 🚀 Lancement du serveur
 app.listen(3000, () => {
   console.log("✅ Serveur lancé sur http://localhost:3000");
-});
-
-// 🚪 Déconnexion
-app.post("/signout", (req, res) => {
-  const { username } = req.body;
-
-  db.run("UPDATE users SET is_connected = 0 WHERE username = ?", [username], (err) => {
-    if (err) {
-      return res.status(500).json({ message: "Erreur lors de la déconnexion." });
-    }
-    res.json({ message: "Déconnexion réussie." });
-  });
 });

@@ -1,4 +1,4 @@
-
+const bcrypt = require("bcrypt");
 const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
 const bodyParser = require("body-parser");
@@ -14,11 +14,11 @@ app.use(bodyParser.json());
 db.serialize(() => {
   db.run(`
     CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    is_connected INTEGER DEFAULT 0
-    );
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT UNIQUE,
+      password TEXT,
+      is_connected INTEGER DEFAULT 0
+    )
   `);
 
   db.run(`
@@ -33,32 +33,36 @@ db.serialize(() => {
 });
 
 // 🔐 Route : inscription
-app.post("/signup", (req, res) => {
+app.post("/signup", async (req, res) => {
   const { username, password } = req.body;
-
-  db.run(
-    "INSERT INTO users (username, password) VALUES (?, ?)",
-    [username, password],
-    function (err) {
-      if (err) {
-        return res.status(400).json({ message: "Erreur ou utilisateur déjà existant." });
+  try {
+    const hash = await bcrypt.hash(password, 10);
+    db.run(
+      "INSERT INTO users (username, password) VALUES (?, ?)",
+      [username, hash],
+      function (err) {
+        if (err) {
+          return res.status(400).json({ message: "Erreur ou utilisateur déjà existant." });
+        }
+        res.json({ message: "Compte créé avec succès" });
       }
-      res.json({ message: "Compte créé avec succès" });
-    }
-  );
+    );
+  } catch (err) {
+    res.status(500).json({ message: "Erreur serveur." });
+  }
 });
-
 
 // 🔓 Route : connexion
 app.post("/signin", (req, res) => {
   const { username, password } = req.body;
 
-  db.get("SELECT * FROM users WHERE username = ?", [username], (err, row) => {
+  db.get("SELECT * FROM users WHERE username = ?", [username], async (err, row) => {
     if (err || !row) {
       return res.status(401).json({ message: "Identifiants invalides" });
     }
 
-    if (password !== row.password) {
+    const valid = await bcrypt.compare(password, row.password);
+    if (!valid) {
       return res.status(401).json({ message: "Mot de passe incorrect" });
     }
 
@@ -71,6 +75,14 @@ app.post("/signin", (req, res) => {
   });
 });
 
+// ❌ Déconnexion
+app.post("/signout", (req, res) => {
+  const { username } = req.body;
+  db.run("UPDATE users SET is_connected = 0 WHERE username = ?", [username], (err) => {
+    if (err) return res.status(500).json({ message: "Erreur déconnexion" });
+    res.json({ message: "Déconnexion réussie" });
+  });
+});
 
 // ✅ Liste des utilisateurs connectés (sauf moi)
 app.get("/connected-users/:username", (req, res) => {
@@ -85,8 +97,7 @@ app.get("/connected-users/:username", (req, res) => {
   );
 });
 
-// 📜 Tous les utilisateurs (sauf moi)=)à=
-
+// 📜 Tous les utilisateurs (sauf moi)
 app.get("/users/:username", (req, res) => {
   const { username } = req.params;
   db.all("SELECT username FROM users WHERE username != ?", [username], (err, rows) => {
@@ -134,16 +145,4 @@ app.get("/messages/:user1/:user2", (req, res) => {
 // 🚀 Lancement du serveur
 app.listen(3000, () => {
   console.log("✅ Serveur lancé sur http://localhost:3000");
-});
-
-// 🚪 Déconnexion
-app.post("/signout", (req, res) => {
-  const { username } = req.body;
-
-  db.run("UPDATE users SET is_connected = 0 WHERE username = ?", [username], (err) => {
-    if (err) {
-      return res.status(500).json({ message: "Erreur lors de la déconnexion." });
-    }
-    res.json({ message: "Déconnexion réussie." });
-  });
 });
