@@ -1,13 +1,14 @@
-
 const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
 const bodyParser = require("body-parser");
-const cors = require("cors");
+const cors = require("cors");// pour autoriser les requêtes cross-origin
+app.use(express.json());// <--- IMPORTANT pour que req.body fonctionne
 
 const app = express();
 const db = new sqlite3.Database("users.db");
-
+const cors = require('cors');
 app.use(cors());
+
 app.use(bodyParser.json());
 
 // Création des tables

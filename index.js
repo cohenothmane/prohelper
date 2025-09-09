@@ -108,6 +108,13 @@ backToUsersBtn.addEventListener('click', () => {
       startUsersPolling();
 
       alert(data.message || "Connexion réussie");
+      signInBtn.classList.add('hidden');
+      signUpBtn.classList.add('hidden');
+      signInForm.classList.add('hidden');
+      signUpForm.classList.add('hidden');
+      signInBtn.classList.add('hidden');
+      signUpBtn.classList.add('hidden');
+
     } catch (err) {
       console.error(err);
       alert("Erreur de connexion au serveur.");
@@ -192,9 +199,11 @@ async function onClickUser(username) {
   // afficher la conversation
   conversationWrap.classList.remove('hidden');
 
-  // cacher la liste d'utilisateurs et le bouton Déconnexion
+  // cacher la liste d'utilisateurs
   userListWrap.classList.add('hidden');
-  signOutBtn.classList.add('hidden');
+
+  // cacher le bouton Déconnexion seulement dans la conversation
+  signOutBtn.style.display = 'none';
 
   // masquer les formulaires de connexion/inscription
   signInForm.classList.add('hidden');
@@ -206,6 +215,17 @@ async function onClickUser(username) {
   startMessagesPolling();
 }
 
+backToUsersBtn.addEventListener('click', () => {
+  conversationWrap.classList.add('hidden');
+  SELECTED_USER = null;
+  stopMessagesPolling();
+
+  userListWrap.classList.remove('hidden');
+
+  // remettre le bouton Déconnexion visible
+  signOutBtn.style.display = 'inline-block';
+});
+
 // Quand on revient à la liste des utilisateurs
 backToUsersBtn.addEventListener('click', () => {
   conversationWrap.classList.add('hidden');  // cacher la conversation
@@ -216,9 +236,6 @@ backToUsersBtn.addEventListener('click', () => {
   userListWrap.classList.remove('hidden');
   signOutBtn.classList.remove('hidden');
 });
-
-
-
   // --- Récupérer la liste des utilisateurs connectés (sauf moi)
   async function refreshConnectedUsers() {
     if (!CURRENT_USER) return;
@@ -302,8 +319,47 @@ backToUsersBtn.addEventListener('click', () => {
   });
 });
 
-backToUsersBtn.addEventListener('click', () => {
-  conversationWrap.classList.add('hidden');  // cacher la conversation
-  SELECTED_USER = null;                      // reset user sélectionné
-  stopMessagesPolling();                     // arrêter le polling des messages
+
+
+signOutBtn.addEventListener('click', async () => {
+  if (!CURRENT_USER) return;
+
+  try {
+    const res = await fetch('http://localhost:3000/signout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: CURRENT_USER })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.message || "Erreur lors de la déconnexion");
+      return;
+    }
+
+    // Réinitialiser l'état
+    CURRENT_USER = null;
+    SELECTED_USER = null;
+
+    // Masquer sections post-connexion
+    chatSection.classList.add('hidden');
+    userListWrap.classList.add('hidden');
+    conversationWrap.classList.add('hidden');
+
+    // Afficher les boutons de connexion/inscription
+    signInForm.classList.add('hidden');
+    signUpForm.classList.add('hidden');
+    signInBtn.classList.remove('hidden');
+    signUpBtn.classList.remove('hidden');
+
+    alert(data.message || "Déconnecté avec succès");
+    // Après déconnexion
+    signInBtn.classList.remove('hidden');
+    signUpBtn.classList.remove('hidden');
+
+
+  } catch (err) {
+    console.error(err);
+    alert("Erreur lors de la déconnexion côté client");
+  }
 });
