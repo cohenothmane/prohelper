@@ -44,11 +44,18 @@ backToUsersBtn.addEventListener('click', () => {
   chatWith.textContent = '';
   messagesBox.innerHTML = '';
 
+  const usersUl = document.getElementById("usersUl");
+
+  // Après avoir mis à jour la liste
+  usersUl.scrollTop = usersUl.scrollHeight;
+
+
   // arrêter le polling des messages
   stopMessagesPolling();
 
   // réafficher la liste des utilisateurs
   userListWrap.classList.remove('hidden');
+
 
   // (option) reprendre le polling des users si tu l'avais stoppé
   startUsersPolling();
@@ -111,9 +118,7 @@ backToUsersBtn.addEventListener('click', () => {
       signInBtn.classList.add('hidden');
       signUpBtn.classList.add('hidden');
       signInForm.classList.add('hidden');
-      signUpForm.classList.add('hidden');
-      signInBtn.classList.add('hidden');
-      signUpBtn.classList.add('hidden');
+      signUpForm.classList.add('hidden');      
 
     } catch (err) {
       console.error(err);

@@ -80,3 +80,10 @@
 #signOutBtn:hover {
   background-color: #b52a37;
 }
+
+#usersUl {
+  max-height: 300px; /* ou la hauteur que tu veux */
+  overflow-y: auto;  /* active le scroll vertical */
+  border: 1px solid #ccc;
+  padding: 10px;
+}
