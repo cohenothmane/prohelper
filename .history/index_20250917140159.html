@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ChatApp</title>
+  <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+  <button class="chatToggle">💬</button>
+
+  <div class="chatMenu hidden">
+    <!-- Boutons de navigation -->
+    <button id="signInBtn">Connexion</button>
+    <button id="signUpBtn">Créer un compte</button>
+
+    <!-- Formulaire Connexion -->
+    <div id="signInForm" class="formBox hidden">
+      <input id="signInId" type="text" placeholder="ID" />
+      <input id="signInPassword" type="password" placeholder="Mot de passe" />
+      <button id="submitSignIn">Connexion</button>
+    </div>
+
+    <!-- Formulaire Inscription -->
+    <div id="signUpForm" class="formBox hidden">
+      <input id="signUpId" type="text" placeholder="Nouvel ID" />
+      <input id="signUpPassword" type="password" placeholder="Mot de passe" />
+      <input id="signUpConfirmPassword" type="password" placeholder="Confirmer mot de passe" />
+      <button id="submitSignUp" type="button">Créer le compte</button>
+    </div>
+
+    <!-- Liste des utilisateurs connectés -->
+    <div id="userList" class="hidden">
+      <h3>Utilisateurs connectés</h3>
+      <ul id="usersUl"></ul>
+    </div>
+
+    <!-- Zone après connexion -->
+<div id="chatSection" class="hidden">
+  <h3>Connecté en tant que <span id="currentUserDisplay"></span></h3>
+
+  <!-- Bloc liste utilisateurs + déconnexion -->
+  <div id="usersBlock">
+    <button id="signOutBtn" type="button">Déconnexion</button>
+  </div>
+
+  <!-- Bloc conversation -->
+  <div id="conversation" class="hidden">
+  <button id="backToUsers" type="button">⬅ Retour</button>
+  <h4>Conversation avec <span id="chatWith"></span></h4>
+  <div id="messages" style="border: 1px solid #ccc; height: 200px; overflow-y: scroll; margin-bottom: 5px;"></div>
+  
+  <!-- indicateur de frappe -->
+  <div id="typingIndicator" style="font-size: 12px; color: gray; margin: 3px 0;"></div>
+
+  <!-- Ligne input + bouton emoji + envoyer -->
+  <div style="display: flex; align-items: center; gap: 5px;">
+    <button id="emojiBtn" type="button">😊</button>
+    <input type="text" id="newMessage" placeholder="Écris ton message..." />
+    <button id="sendMessage" type="button" >Envoyer</button>
+  </div>
+
+  <!-- Sélecteur emoji (caché au départ) -->
+  <emoji-picker id="emojiPicker" class="hidden"></emoji-picker>
+</div>
+
+</div>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
+  <script src="index.js"></script>
+</body>
+</html>

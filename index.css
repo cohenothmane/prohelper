@@ -87,3 +87,15 @@
   border: 1px solid #ccc;
   padding: 10px;
 }
+
+emoji-picker {
+  position: absolute;
+  bottom: 60px; /* remonte le sélecteur au-dessus de l'input */
+  right: 20px;
+  max-height: 300px;
+  z-index: 1000;
+}
+
+.hidden {
+  display: none;
+}
