@@ -377,11 +377,6 @@ document.addEventListener('DOMContentLoaded', () => {
       CURRENT_USER = null;
       SELECTED_USER = null;
 
-      // Vider les champs de connexion
-      document.getElementById('signInId').value = "";
-      document.getElementById('signInPassword').value = "";
-
-
       // Masquer sections post-connexion
       chatSection.classList.add('hidden');
       userListWrap.classList.add('hidden');

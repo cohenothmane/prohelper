@@ -204,7 +204,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       newMessageInput.value = "";
       // recharge la conversation
-      console.log("Test click"); 
       await refreshMessages();
       // scroll en bas
       messagesBox.scrollTop = messagesBox.scrollHeight;
@@ -377,11 +376,6 @@ document.addEventListener('DOMContentLoaded', () => {
       CURRENT_USER = null;
       SELECTED_USER = null;
 
-      // Vider les champs de connexion
-      document.getElementById('signInId').value = "";
-      document.getElementById('signInPassword').value = "";
-
-
       // Masquer sections post-connexion
       chatSection.classList.add('hidden');
       userListWrap.classList.add('hidden');
@@ -393,6 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
       signInBtn.classList.remove('hidden');
       signUpBtn.classList.remove('hidden');
 
+      alert(data.message || "Déconnecté avec succès");
       // Après déconnexion
       signInBtn.classList.remove('hidden');
       signUpBtn.classList.remove('hidden');
