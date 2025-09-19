@@ -1,24 +1,25 @@
-
 const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
 const bodyParser = require("body-parser");
-const cors = require("cors");
+const cors = require("cors");// pour autoriser les requêtes cross-origin
 
 const app = express();
 const db = new sqlite3.Database("users.db");
 
 app.use(cors());
+app.use(express.json());// <--- IMPORTANT pour que req.body fonctionne
 app.use(bodyParser.json());
 
 // Création des tables
 db.serialize(() => {
   db.run(`
     CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      username TEXT UNIQUE,
-      password TEXT,
-      is_connected INTEGER DEFAULT 0
-    )
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    is_connected INTEGER DEFAULT 0
+    name TEXT UNIQUE NOT NULL
+    );
   `);
 
   db.run(`
@@ -53,13 +54,12 @@ app.post("/signup", (req, res) => {
 app.post("/signin", (req, res) => {
   const { username, password } = req.body;
 
-  db.get("SELECT * FROM users WHERE username = ?", [username], async (err, row) => {
+  db.get("SELECT * FROM users WHERE username = ?", [username], (err, row) => {
     if (err || !row) {
       return res.status(401).json({ message: "Identifiants invalides" });
     }
 
-    const valid = await bcrypt.compare(password, row.password);
-    if (!valid) {
+    if (password !== row.password) {
       return res.status(401).json({ message: "Mot de passe incorrect" });
     }
 
@@ -72,14 +72,6 @@ app.post("/signin", (req, res) => {
   });
 });
 
-// ❌ Déconnexion
-app.post("/signout", (req, res) => {
-  const { username } = req.body;
-  db.run("UPDATE users SET is_connected = 0 WHERE username = ?", [username], (err) => {
-    if (err) return res.status(500).json({ message: "Erreur déconnexion" });
-    res.json({ message: "Déconnexion réussie" });
-  });
-});
 
 // ✅ Liste des utilisateurs connectés (sauf moi)
 app.get("/connected-users/:username", (req, res) => {
@@ -94,7 +86,8 @@ app.get("/connected-users/:username", (req, res) => {
   );
 });
 
-// 📜 Tous les utilisateurs (sauf moi)
+// 📜 Tous les utilisateurs (sauf moi)=)à=
+
 app.get("/users/:username", (req, res) => {
   const { username } = req.params;
   db.all("SELECT username FROM users WHERE username != ?", [username], (err, rows) => {
@@ -142,4 +135,16 @@ app.get("/messages/:user1/:user2", (req, res) => {
 // 🚀 Lancement du serveur
 app.listen(3000, () => {
   console.log("✅ Serveur lancé sur http://localhost:3000");
+});
+
+// 🚪 Déconnexion
+app.post("/signout", (req, res) => {
+  const { username } = req.body;
+
+  db.run("UPDATE users SET is_connected = 0 WHERE username = ?", [username], (err) => {
+    if (err) {
+      return res.status(500).json({ message: "Erreur lors de la déconnexion." });
+    }
+    res.json({ message: "Déconnexion réussie." });
+  });
 });

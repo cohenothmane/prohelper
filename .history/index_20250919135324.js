@@ -39,9 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const createGroupBtn = document.getElementById("createGroupBtn");
   const groupInput = document.getElementById("groupInput");
   const submitGroupBtn = document.getElementById("submitGroupBtn");
-  const cancelGroupBtn = document.getElementById("cancelGroupBtn");
-
-  hideCreateGroupButton(); // on cache le bouton de groupe
 
   function showCreateGroupButton() {
     createGroupBtn.style.display = "inline-block";
@@ -51,10 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
     createGroupBtn.style.display = "none";
     groupInput.style.display = "none"; // cache aussi l'input si ouvert
   }
-
-  cancelGroupBtn.addEventListener("click", () => {
-    groupInput.style.display = "none"; // cacher l'input
-  });
 
   createGroupBtn.addEventListener("click", () => {
     groupInput.style.display = "block"; // fait apparaître l'input
@@ -270,9 +263,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // cacher la liste d'utilisateurs
     userListWrap.classList.add('hidden');
 
-    // cache le bouton de groupe dans la conversation
-    hideCreateGroupButton();
-
     // cacher le bouton Déconnexion seulement dans la conversation
     signOutBtn.style.display = 'none';
 
@@ -292,9 +282,6 @@ document.addEventListener('DOMContentLoaded', () => {
     stopMessagesPolling();
 
     userListWrap.classList.remove('hidden');
-
-    // on revient sur la liste → bouton de groupe visible
-    showCreateGroupButton();
 
     // remettre le bouton Déconnexion visible
     signOutBtn.style.display = 'inline-block';

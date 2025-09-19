@@ -52,10 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
     groupInput.style.display = "none"; // cache aussi l'input si ouvert
   }
 
-  cancelGroupBtn.addEventListener("click", () => {
-    groupInput.style.display = "none"; // cacher l'input
-  });
-
   createGroupBtn.addEventListener("click", () => {
     groupInput.style.display = "block"; // fait apparaître l'input
   });

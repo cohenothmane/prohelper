@@ -8,6 +8,7 @@ const db = new sqlite3.Database("users.db");
 
 app.use(cors());
 app.use(express.json());// <--- IMPORTANT pour que req.body fonctionne
+app.use(bodyParser.json());
 
 // Création des tables
 db.serialize(() => {
@@ -16,7 +17,8 @@ db.serialize(() => {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
-      is_connected INTEGER DEFAULT 0
+      is_connected INTEGER DEFAULT 0,
+      name TEXT UNIQUE NOT NULL
     );
   `);
 
