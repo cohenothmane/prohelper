@@ -44,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const userSearch = document.getElementById("userSearch");
   const suggestionsBox = document.getElementById("suggestions");
   const selectedUsers = document.getElementById("selectedUsers");
-  const groupMembersInput = document.getElementById("groupMembers");
 
   let selected = [];
 
@@ -60,42 +59,30 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Quand on tape dans l'input pour choisire les membre du groupe
-  userSearch.addEventListener("input", async (e) => {
-    const query = e.target.value.trim();
-    if (!query) {
-      closeSuggestions(); // fonction pour vider la liste
+  userSearch.addEventListener("input", async () => {
+    const query = userSearch.value.trim();
+    if (query.length === 0) {
+      suggestionsBox.style.display = "none";
       return;
     }
 
-    try {
-      const res = await fetch(`http://localhost:3000/searchUser?query=${encodeURIComponent(query)}`);
-      const users = await res.json();
-      showSuggestions(users); // fonction pour afficher les suggestions
-    } catch (err) {
-      console.error("Erreur recherche users :", err);
-    }
-  });
+    // 👉 Appel au backend pour chercher les utilisateurs
+    const res = await fetch(`/searchUser?query=${encodeURIComponent(query)}`);
+    const users = await res.json();
 
-  function showSuggestions(users) {
+    // Affichage des résultats
     suggestionsBox.innerHTML = "";
     users.forEach(user => {
-      if (!selected.includes(user)) {
+      if (!selected.includes(user)) { // éviter doublons
         const div = document.createElement("div");
         div.textContent = user;
-        div.style.padding = "6px";
-        div.style.cursor = "pointer";
         div.addEventListener("click", () => addUser(user));
         suggestionsBox.appendChild(div);
       }
     });
 
     suggestionsBox.style.display = users.length > 0 ? "block" : "none";
-  }
-
-  function closeSuggestions() {
-    suggestionsBox.innerHTML = "";
-    suggestionsBox.style.display = "none";
-  }
+  });
 
   // Ajouter un utilisateur sélectionné
   function addUser(username) {
@@ -376,7 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!CURRENT_USER) return;
     try {
       //---- on utilisera ça pour afficher si il sont conecter: const res = await fetch(`http://localhost:3000/connected-users/${encodeURIComponent(CURRENT_USER)}`);
-      const res = await fetch(`http://localhost:3000/users/${CURRENT_USER}`);
+      const res = await fetch(`http://localhost:3000/users/${currentUser}`);
       const users = await res.json();
       console.log(users);
 

@@ -99,31 +99,3 @@ emoji-picker {
 .hidden {
   display: none;
 }
-
-.suggestions-box {
-  border: 1px solid #ccc;
-  max-height: 150px;
-  overflow-y: auto;
-  background: white;
-  position: absolute;
-  width: 200px;
-  display: none;
-}
-
-.suggestions-box div {
-  padding: 5px;
-  cursor: pointer;
-}
-
-.suggestions-box div:hover {
-  background: #eee;
-}
-
-.tag {
-  display: inline-block;
-  background: #007bff;
-  color: white;
-  padding: 5px 10px;
-  margin: 3px;
-  border-radius: 15px;
-}

@@ -60,7 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Quand on tape dans l'input pour choisire les membre du groupe
-  userSearch.addEventListener("input", async (e) => {
+  
+  groupMembersInput.addEventListener("input", async (e) => {
     const query = e.target.value.trim();
     if (!query) {
       closeSuggestions(); // fonction pour vider la liste
@@ -75,27 +76,24 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error("Erreur recherche users :", err);
     }
   });
+  
+    // 👉 Appel au backend pour chercher les utilisateurs
+    const res = await fetch(`/searchUser?query=${encodeURIComponent(query)}`);
+    const users = await res.json();
 
-  function showSuggestions(users) {
+    // Affichage des résultats
     suggestionsBox.innerHTML = "";
     users.forEach(user => {
-      if (!selected.includes(user)) {
+      if (!selected.includes(user)) { // éviter doublons
         const div = document.createElement("div");
         div.textContent = user;
-        div.style.padding = "6px";
-        div.style.cursor = "pointer";
         div.addEventListener("click", () => addUser(user));
         suggestionsBox.appendChild(div);
       }
     });
 
     suggestionsBox.style.display = users.length > 0 ? "block" : "none";
-  }
-
-  function closeSuggestions() {
-    suggestionsBox.innerHTML = "";
-    suggestionsBox.style.display = "none";
-  }
+  });
 
   // Ajouter un utilisateur sélectionné
   function addUser(username) {

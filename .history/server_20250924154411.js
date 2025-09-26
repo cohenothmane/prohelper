@@ -121,7 +121,6 @@ app.get("/users/:username", (req, res) => {
   });
 });
 
-// recherche des user pour la création de groupes
 app.get("/searchUser", (req, res) => {
   const query = `%${req.query.query}%`;
   db.all("SELECT username FROM users WHERE username LIKE ?", [query], (err, rows) => {

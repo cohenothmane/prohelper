@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Quand on tape dans l'input pour choisire les membre du groupe
-  userSearch.addEventListener("input", async (e) => {
+  groupMembersInput.addEventListener("input", async (e) => {
     const query = e.target.value.trim();
     if (!query) {
       closeSuggestions(); // fonction pour vider la liste
