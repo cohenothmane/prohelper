@@ -144,66 +144,25 @@ document.addEventListener('DOMContentLoaded', () => {
     groupInput.style.display = "block"; // fait apparaître l'input
   });
 
-  
-  submitGroupBtn.addEventListener("click", async () => {
-    const groupName = document.getElementById("groupName").value.trim();
+  submitGroupBtn.addEventListener("click", () => {
+    const groupName = document.getElementById("groupName").value;
+    const creator = CURRENT_USER; // ou la variable qui stocke ton utilisateur connecté
 
-    if (!groupName) {
-      return alert("Merci de mettre un nom de groupe");
-    }
-    if (!CURRENT_USER) {
-      return alert("Tu dois être connecté pour créer un groupe.");
-    }
+    if (!groupName) return alert("Merci de mettre un nom de groupe");
 
-    // copie des membres sélectionnés et s'assure que le créateur y est
-    const members = [...selected];
-    if (!members.includes(CURRENT_USER)) members.push(CURRENT_USER);
-
-    // désactive le bouton pour éviter les doublons
-    submitGroupBtn.disabled = true;
-
-    try {
-      // 1) création du groupe (route existante /groups)
-      const res = await fetch("http://localhost:3000/groups", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ group_name: groupName, creator: CURRENT_USER })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Erreur création groupe");
-
-      const groupId = data.groupId || data.id; // s'adapte selon la réponse serveur
-      // 2) si ton backend n'ajoute pas les membres envoyés automatiquement,
-      // utilise la route add-member pour chaque membre (sauf le créateur si déjà ajouté)
-      if (groupId) {
-        const membersToAdd = members.filter(m => m !== CURRENT_USER);
-
-        await Promise.all(membersToAdd.map(u =>
-          fetch(`http://localhost:3000/groups/${groupId}/add-member`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username: u })
-          })
-        ));
-      }
-
-      alert("Groupe créé avec succès !");
-      // reset UI
-      selected = [];
-      selectedUsers.innerHTML = "";
-      document.getElementById("groupName").value = "";
-      groupInput.style.display = "none";
-
-      // (option) tu peux rafraîchir la liste d'utilisateurs / groupes ici
-      await refreshConnectedUsers();
-    } catch (err) {
-      console.error("Erreur création groupe :", err);
-      alert("Erreur lors de la création du groupe : " + err.message);
-    } finally {
-      submitGroupBtn.disabled = false;
-    }
+    fetch("http://localhost:3000/groups", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ group_name: groupName, creator })
+    })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message);
+        groupInput.style.display = "none"; // cache l'input après création
+        document.getElementById("groupName").value = ""; // reset input
+      })
+      .catch(err => console.error(err));
   });
-
 
   const emojiPicker = document.getElementById('emojiPicker');
   chatToggle.addEventListener('click', () => {
