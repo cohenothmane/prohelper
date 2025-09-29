@@ -5,8 +5,6 @@ let CURRENT_USER = null;
 let SELECTED_USER = null;
 let usersInterval = null;
 let messagesInterval = null;
-let selectedGroup = null;
-
 
 document.addEventListener('DOMContentLoaded', () => {
   // --- Éléments UI
@@ -356,70 +354,40 @@ document.addEventListener('DOMContentLoaded', () => {
   sendMessageBtn.addEventListener('click', async (e) => {
     e.preventDefault();
     if (!CURRENT_USER || !SELECTED_USER) return;
-
     const message = newMessageInput.value.trim();
     if (!message) return;
 
     try {
-      let res;
-
-      if (SELECTED_USER.isGroup) {
-        // Envoi vers la route groupe
-        res = await fetch(`http://localhost:3000/groups/${SELECTED_USER.username}/messages`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            sender: CURRENT_USER,
-            message
-          })
-        });
-      } else {
-        // Envoi vers la route privée
-        res = await fetch('http://localhost:3000/message', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            sender: CURRENT_USER,
-            receiver: SELECTED_USER.username,
-            message
-          })
-        });
-      }
-
+      const res = await fetch('http://localhost:3000/message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sender: CURRENT_USER,
+          receiver: SELECTED_USER,
+          message
+        })
+      });
       const data = await res.json();
       if (!res.ok) {
         alert(data.message || "Erreur d'envoi.");
         return;
       }
-
       newMessageInput.value = "";
-
-      // Recharge la bonne conversation
-      if (SELECTED_USER.isGroup) {
-        await refreshGroupMessages(SELECTED_USER.username);
-      } else {
-        await refreshMessages();
-      }
-
-      // Scroll en bas
+      // recharge la conversation
+      console.log("Test click"); 
+      await refreshMessages();
+      // scroll en bas
       messagesBox.scrollTop = messagesBox.scrollHeight;
-
     } catch (err) {
       console.error(err);
       alert("Erreur d’envoi du message");
     }
   });
 
-
-
-
-
-
-
   // --- Sélection d'un utilisateur dans la liste
   async function onClickUser(username, isGroup = false) {
-    SELECTED_USER = {username, isGroup};
-    chatWith.textContent = username;
+    SELECTED_USER = username;
+    chatWith.textContent = SELECTED_USER;
 
     // afficher la conversation
     conversationWrap.classList.remove('hidden');
@@ -434,14 +402,13 @@ document.addEventListener('DOMContentLoaded', () => {
     signUpForm.classList.add('hidden');
     // stop ancien polling messages et lancer le nouveau
     stopMessagesPolling();
-    stopGroupMessagesPolling();
 
     if(isGroup){
-      await refreshGroupMessages(username); // targetUser = groupe
+      await refreshMessages(username); // targetUser = groupe
       startGroupMessagesPolling(username); // on créera aussi un polling spécifique
     } else {
-      await refreshMessages(username); // targetUser = groupe
-      startMessagesPolling(username);
+      await refreshMessages(); // targetUser = groupe
+      startMessagesPolling();
     }
   }
 
@@ -486,15 +453,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Nettoie la liste puis reconstruit
       usersUl.innerHTML = "";
-      console.log("Users:", users);
-      console.log("Groups:", groups);
-
       // Affiche les utilisateurs
       users.forEach(u => {
         const li = document.createElement('li');
         li.textContent = u.username;
         li.style.cursor = 'pointer';
-        li.addEventListener('click', () => onClickUser(u.username, false));
+        li.addEventListener('click', () => onClickUser(u.username));
         usersUl.appendChild(li);
       });
       // Affiche les groupes
@@ -503,7 +467,7 @@ document.addEventListener('DOMContentLoaded', () => {
         li.textContent = g.group_name;
         li.style.cursor = 'pointer';
         li.style.fontWeight = 'bold';  // pour différencier d’un user
-        li.addEventListener('click', () => onClickUser(g.id, true)); // le deuxième paramètre = c’est un groupe
+        li.addEventListener('click', () => onClickUser(g.group_name, true)); // le deuxième paramètre = c’est un groupe
         usersUl.appendChild(li);
       });
 
@@ -513,9 +477,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- Récupérer les messages d'un groupe
-  async function refreshGroupMessages(groupId) {
+  async function refreshGroupMessages(groupName) {
+    if (!groupName) return;
     try {
-      const res = await fetch(`http://localhost:3000/groups/${groupId}/messages`);
+      const res = await fetch(`http://localhost:3000/group-messages/${encodeURIComponent(groupName)}`);
       const msgs = await res.json();
 
       messagesBox.innerHTML = "";
@@ -542,7 +507,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function refreshMessages() {
     if (!CURRENT_USER || !SELECTED_USER) return;
     try {
-      const url = `http://localhost:3000/messages/${encodeURIComponent(CURRENT_USER)}/${encodeURIComponent(SELECTED_USER.username)}`;
+      const url = `http://localhost:3000/messages/${encodeURIComponent(CURRENT_USER)}/${encodeURIComponent(SELECTED_USER)}`;
       const res = await fetch(url);
       const msgs = await res.json();
 
@@ -591,18 +556,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let groupMessagesInterval = null;
 
-  function startGroupMessagesPolling(group_id){
+  function startGroupMessagesPolling(group_name){
     stopGroupMessagesPolling();
-    groupMessagesInterval = setInterval(() => refreshGroupMessages(group_id), 2000);
+    groupMessagesInterval = setInterval(() => refreshGroupMessages(group_name), 2000);
   }
 
   function stopGroupMessagesPolling() {
-    if (groupMessagesInterval) {
+    if (groupMessagesIntervalà) {
       clearInterval(groupMessagesInterval);
       groupMessagesInterval =null;
     }
   }
-
+  
   // (Option) Déconnexion propre quand l’onglet se ferme
   // Déconnexion automatique sans popup
   window.addEventListener('unload', () => {

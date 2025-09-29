@@ -129,9 +129,9 @@ app.get("/searchUser", (req, res) => {
 
 // ✉️ Envoi de message
 app.post("/message", (req, res) => {
-  const { sender, receiver, message } = req.body;
+  const { sender, receiver, groupId, message } = req.body;
 
-  if (!sender || !receiver || !message) {
+  if (!sender || (!receiver && !groupId) || !message) {
     return res.status(400).json({ message: "Champs manquants." });
   }
 

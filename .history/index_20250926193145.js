@@ -356,65 +356,50 @@ document.addEventListener('DOMContentLoaded', () => {
   sendMessageBtn.addEventListener('click', async (e) => {
     e.preventDefault();
     if (!CURRENT_USER || !SELECTED_USER) return;
-
     const message = newMessageInput.value.trim();
     if (!message) return;
 
     try {
-      let res;
+      const payload = {
+        sender: CURRENT_USER,
+        receiver: group.id,
+        message
+      };
 
+      // on verifie si on a à faire a un groupe ou un user
+      // si c un groupe
       if (SELECTED_USER.isGroup) {
-        // Envoi vers la route groupe
-        res = await fetch(`http://localhost:3000/groups/${SELECTED_USER.username}/messages`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            sender: CURRENT_USER,
-            message
-          })
-        });
+        payload.group = SELECTED_USER.username;
       } else {
-        // Envoi vers la route privée
-        res = await fetch('http://localhost:3000/message', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            sender: CURRENT_USER,
-            receiver: SELECTED_USER.username,
-            message
-          })
-        });
+        payload.receiver = SELECTED_USER.username;
       }
+
+      const res = await fetch('http://localhost:3000/message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
 
       const data = await res.json();
       if (!res.ok) {
         alert(data.message || "Erreur d'envoi.");
         return;
       }
-
       newMessageInput.value = "";
-
-      // Recharge la bonne conversation
-      if (SELECTED_USER.isGroup) {
-        await refreshGroupMessages(SELECTED_USER.username);
-      } else {
+      // recharge la conversation selon le type
+      if (SELECTED_USER.isGroup){
+        await refreshGroupMessages(SELECTED_USER.name)
+      }else{
         await refreshMessages();
       }
 
-      // Scroll en bas
+      // scroll en bas
       messagesBox.scrollTop = messagesBox.scrollHeight;
-
     } catch (err) {
       console.error(err);
       alert("Erreur d’envoi du message");
     }
   });
-
-
-
-
-
-
 
   // --- Sélection d'un utilisateur dans la liste
   async function onClickUser(username, isGroup = false) {
@@ -437,11 +422,11 @@ document.addEventListener('DOMContentLoaded', () => {
     stopGroupMessagesPolling();
 
     if(isGroup){
-      await refreshGroupMessages(username); // targetUser = groupe
-      startGroupMessagesPolling(username); // on créera aussi un polling spécifique
+      await refreshGroupMessages(groupId); // targetUser = groupe
+      startGroupMessagesPolling(groupId); // on créera aussi un polling spécifique
     } else {
-      await refreshMessages(username); // targetUser = groupe
-      startMessagesPolling(username);
+      await refreshMessages(); // targetUser = groupe
+      startMessagesPolling();
     }
   }
 
@@ -503,7 +488,7 @@ document.addEventListener('DOMContentLoaded', () => {
         li.textContent = g.group_name;
         li.style.cursor = 'pointer';
         li.style.fontWeight = 'bold';  // pour différencier d’un user
-        li.addEventListener('click', () => onClickUser(g.id, true)); // le deuxième paramètre = c’est un groupe
+        li.addEventListener('click', () => onClickUser(g.group_name, true)); // le deuxième paramètre = c’est un groupe
         usersUl.appendChild(li);
       });
 
@@ -593,7 +578,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function startGroupMessagesPolling(group_id){
     stopGroupMessagesPolling();
-    groupMessagesInterval = setInterval(() => refreshGroupMessages(group_id), 2000);
+    groupMessagesInterval = setInterval(() => refreshGroupMessages(group.id), 2000);
   }
 
   function stopGroupMessagesPolling() {

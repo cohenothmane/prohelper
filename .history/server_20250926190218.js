@@ -129,20 +129,33 @@ app.get("/searchUser", (req, res) => {
 
 // ✉️ Envoi de message
 app.post("/message", (req, res) => {
-  const { sender, receiver, message } = req.body;
+  const { sender, receiver, groupId, message } = req.body;
 
-  if (!sender || !receiver || !message) {
+  if (!sender || (!receiver && !groupId) || !message) {
     return res.status(400).json({ message: "Champs manquants." });
   }
 
-  db.run(
-    "INSERT INTO messages (sender, receiver, message) VALUES (?, ?, ?)",
-    [sender, receiver, message],
-    function (err) {
-      if (err) return res.status(500).json({ message: "Erreur d'envoi." });
-      res.json({ message: "Message envoyé." });
-    }
-  );
+  if (groupId){
+    // Message envoyé à un groupe
+    db.run(
+      "INSERT INTO group_messages (group_id, sender, message) VALUES (?, ?, ?)",
+      [groupId, sender, message],
+      function (err) {
+        if (err) return res.status(500).json({ message: "Erreur envoi groupe." });
+        res.json({ message: "Message envoyé au groupe." });
+      }
+    );
+  } else {
+    //message privé
+    db.run(
+      "INSERT INTO messages (sender, receiver, message) VALUES (?, ?, ?)",
+      [sender, receiver, message],
+      function (err) {
+        if (err) return res.status(500).json({ message: "Erreur d'envoi." });
+        res.json({ message: "Message envoyé." });
+      }
+    );
+  }
 });
 
 // 📩 Récupération des messages entre 2 utilisateurs

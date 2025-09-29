@@ -90,7 +90,6 @@ app.post("/signin", (req, res) => {
 
     db.run("UPDATE users SET is_connected = 1 WHERE username = ?", [username], (err) => {
       if (err) {
-        console.error("UPDATE error:", err);
         return res.status(500).json({ message: "Erreur serveur lors de la connexion" });
       }
       res.json({ message: "Connexion réussie" });
@@ -99,19 +98,24 @@ app.post("/signin", (req, res) => {
 });
 
 
-// ✅ Liste des utilisateurs sauf moi
-app.get("/users/:username", (req, res) => {
+// ✅ Liste des utilisateurs connectés (sauf moi)
+app.get("/connected-users/:username", (req, res) => {
   const { username } = req.params;
-  db.all("SELECT username FROM users WHERE username != ?", [username], (err, rows) => {
-    if (err) return res.status(500).json({ message: "Erreur serveur." });
-    res.json(rows);
-  });
+  db.all(
+    "SELECT username FROM users WHERE is_connected = 1 AND username != ?",
+    [username],
+    (err, rows) => {
+      if (err) return res.status(500).json({ message: "Erreur serveur." });
+      res.json(rows);
+    }
+  );
 });
 
 // 📜 Tous les utilisateurs (sauf moi)=)à=
 
-app.get("/users", (req, res) => {
-  db.all("SELECT username FROM users", [], (err, rows) => {
+app.get("/users/:username", (req, res) => {
+  const { username } = req.params;
+  db.all("SELECT username FROM users WHERE username != ?", [username], (err, rows) => {
     if (err) return res.status(500).json({ message: "Erreur serveur." });
     res.json(rows);
   });
