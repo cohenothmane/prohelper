@@ -49,7 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const groupMembersInput = document.getElementById("groupMembers");
 
   let selected = [];
-  let typingTimeout = null;
 
   hideCreateGroupButton(); // on cache le bouton de groupe
 
@@ -411,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-
+  let typingTimeout;
   newMessageInput.addEventListener('input', () => {
     if (!CURRENT_USER || !SELECTED_USER) return;
 
@@ -480,10 +479,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       await refreshMessages(username); // targetUser = groupe
       startMessagesPolling(username);
-
-      // ✅ démarrer le polling typing pour cet utilisateur
-      startCheckingTyping(username);
-
     }
   }
 
@@ -491,7 +486,6 @@ document.addEventListener('DOMContentLoaded', () => {
     conversationWrap.classList.add('hidden');
     SELECTED_USER = null;
     stopMessagesPolling();
-    stopCheckingTyping(); // <-- important
 
     userListWrap.classList.remove('hidden');
 
@@ -658,42 +652,19 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   const typingIndicator = document.getElementById('typingIndicator');
+  let typingTimeout = null;
 
+  // Quand l'utilisateur local tape : afficher un indicateur local (version front-only)
   newMessageInput.addEventListener('input', () => {
-    if (!CURRENT_USER || !SELECTED_USER) return;
-    
-    // ✅ Prévenir le serveur que je tape
-    fetch("http://localhost:3000/typing", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ from: CURRENT_USER, to: SELECTED_USER.username })
-    });
-
-    // ✅ Affichage local (optionnel)
+    // Affiche localement (ex: "Tu écris..." ou vide pour ne rien afficher côté local)
     typingIndicator.textContent = "Vous écrivez...";
 
-    // ✅ Réinitialise le timeout
+    // Réinitialise le timeout : si plus d'activité après 1500ms, efface l'indicateur
     clearTimeout(typingTimeout);
     typingTimeout = setTimeout(() => {
-      // prévenir serveur que j'ai arrêté
-      fetch("http://localhost:3000/stopTyping", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ from: CURRENT_USER, to: SELECTED_USER.username })
-      });
-
-      // efface l’indicateur local
       typingIndicator.textContent = "";
-    }, 2000);
+    }, 1500);
   });
-
-
-
-
-
-
-
-
 
   signOutBtn.addEventListener('click', async () => {
     if (!CURRENT_USER) return;

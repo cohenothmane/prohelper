@@ -411,7 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-
+  let typingTimeout;
   newMessageInput.addEventListener('input', () => {
     if (!CURRENT_USER || !SELECTED_USER) return;
 

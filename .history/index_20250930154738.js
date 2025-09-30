@@ -49,7 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const groupMembersInput = document.getElementById("groupMembers");
 
   let selected = [];
-  let typingTimeout = null;
 
   hideCreateGroupButton(); // on cache le bouton de groupe
 
@@ -411,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-
+  let typingTimeout;
   newMessageInput.addEventListener('input', () => {
     if (!CURRENT_USER || !SELECTED_USER) return;
 
@@ -658,10 +657,16 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   const typingIndicator = document.getElementById('typingIndicator');
+  let typingTimeout = null;
+
+  let typingTimeout;
 
   newMessageInput.addEventListener('input', () => {
-    if (!CURRENT_USER || !SELECTED_USER) return;
-    
+    if (!CURRENT_USER || !SELECTED_USER) 
+      {
+        return;
+      }
+
     // ✅ Prévenir le serveur que je tape
     fetch("http://localhost:3000/typing", {
       method: "POST",
